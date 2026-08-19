@@ -29,7 +29,8 @@ const registerUser = async (req, res) => {
     });
 
     if (user) {
-      const verificationLink = `http://localhost:3000/verify/${verificationToken}`;
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+      const verificationLink = `${frontendUrl}/verify/${verificationToken}`;
       
       // Real Email Sending via Nodemailer
       const transporter = nodemailer.createTransport({

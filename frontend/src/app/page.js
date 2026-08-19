@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import axios from "axios";
+import FavouriteButton from "@/components/FavouriteButton";
 
 export default function Home() {
   const [trending, setTrending] = useState([]);
@@ -39,12 +40,12 @@ export default function Home() {
             Spring / Summer Collection
           </span>
           <h1 className="text-5xl md:text-7xl font-light tracking-tight mb-8 font-poppins text-primary">
-            Elegance in Every <br className="hidden md:block"/> Detail.
+            Modern comfort for <br className="hidden md:block"/> every generation.
           </h1>
           <p className="text-lg md:text-xl text-primary/80 mb-10 max-w-xl mx-auto font-light">
-            Discover the new standard of modern luxury. Minimalist aesthetics for the contemporary wardrobe.
+            Discover effortless style for men, women, and kids with timeless pieces made to feel as good as they look.
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/shop?gender=Women">
               <button className="bg-primary text-primary-foreground px-8 py-4 uppercase tracking-widest text-xs font-semibold hover:bg-primary/90 transition-all duration-300">
                 Shop Women
@@ -55,6 +56,11 @@ export default function Home() {
                 Shop Men
               </button>
             </Link>
+            <Link href="/shop?gender=Kids">
+              <button className="bg-transparent border border-primary text-primary px-8 py-4 uppercase tracking-widest text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-300 bg-white/20 backdrop-blur-sm">
+                Shop Kids
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -62,7 +68,7 @@ export default function Home() {
       {/* Featured Categories */}
       <section className="py-24 px-6 max-w-7xl mx-auto w-full">
         <div className="flex justify-between items-end mb-12">
-          <h2 className="text-3xl font-light font-poppins">Curated Collections</h2>
+          <h2 className="text-3xl font-light font-poppins">Easy shopping, made simple</h2>
           <Link href="/shop" className="uppercase tracking-widest text-xs font-semibold pb-1 border-b border-primary hover:text-muted-foreground transition-colors">
             View All
           </Link>
@@ -70,9 +76,9 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { title: 'Women', subtitle: 'Refined Silhouettes', link: '/shop?gender=Women', img: '/images/milada-vigerova-p8Drpg_duLw-unsplash.jpg' },
-            { title: 'Men', subtitle: 'Tailored Essentials', link: '/shop?gender=Men', img: '/images/justin-buisson-JU5_bUxr5Rg-unsplash.jpg' },
-            { title: 'Accessories', subtitle: 'Modern Comfort', link: '/shop?category=Accessories', img: '/images/mediamodifier-7cERndkOyDw-unsplash.jpg' }
+            { title: 'Women', subtitle: 'Polished looks for everyday ease', link: '/shop?gender=Women', img: '/images/milada-vigerova-p8Drpg_duLw-unsplash.jpg' },
+            { title: 'Men', subtitle: 'Sharp staples with relaxed comfort', link: '/shop?gender=Men', img: '/images/justin-buisson-JU5_bUxr5Rg-unsplash.jpg' },
+            { title: 'Kids', subtitle: 'Playful pieces made for movement', link: '/shop?gender=Kids', img: '/images/mediamodifier-7cERndkOyDw-unsplash.jpg' }
           ].map((cat, i) => (
             <Link href={cat.link} key={i}>
               <div className="group cursor-pointer">
@@ -104,8 +110,8 @@ export default function Home() {
               <p className="col-span-4 text-center text-muted-foreground">More products arriving soon...</p>
             ) : trending.map((item) => (
               <div key={item._id} className="group flex flex-col">
-                <Link href={`/product/${item._id}`}>
-                  <div className="relative aspect-[3/4] bg-[#e7e5e4] mb-4 overflow-hidden cursor-pointer">
+                <div className="relative aspect-[3/4] bg-[#e7e5e4] mb-4 overflow-hidden cursor-pointer">
+                  <Link href={`/product/${item._id}`}>
                    <Image 
                      src={item.image?.startsWith('http') ? item.image : `http://localhost:5000${item.image}`} 
                      alt={item.name} 
@@ -113,8 +119,11 @@ export default function Home() {
                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" 
                      className="object-cover scale-100 group-hover:scale-105 transition-transform duration-500" 
                    />
+                  </Link>
+                  <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <FavouriteButton product={item} size={16} />
                   </div>
-                </Link>
+                </div>
                 <div className="flex justify-between items-start">
                   <div>
                     <Link href={`/product/${item._id}`}>

@@ -3,15 +3,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { Search, User, ShoppingBag, Menu, X, ChevronRight } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ChevronRight, Heart } from "lucide-react";
 import { logout } from "@/store/authSlice";
+import { clearFavourites } from "@/store/favouritesSlice";
 
 export default function Navbar() {
   const dispatch = useDispatch();
   const router = useRouter();
   const cartItems = useSelector((state) => state.cart.cartItems);
   const userInfo = useSelector((state) => state.auth.userInfo);
+  const favourites = useSelector((state) => state.favourites.items);
   const cartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
+  const favCount = favourites.length;
+  const displayName = userInfo?.firstName || userInfo?.name || "there";
 
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -50,19 +54,19 @@ export default function Navbar() {
               Home
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-foreground transition-all group-hover:w-full"></span>
             </Link>
-            <Link href="/shop?category=Men" className="hover:text-muted-foreground transition relative group">
+            <Link href="/shop?gender=Men" className="hover:text-muted-foreground transition relative group">
               Men
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-foreground transition-all group-hover:w-full"></span>
             </Link>
-            <Link href="/shop?category=Women" className="hover:text-muted-foreground transition relative group">
+            <Link href="/shop?gender=Women" className="hover:text-muted-foreground transition relative group">
               Women
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-foreground transition-all group-hover:w-full"></span>
             </Link>
-            <Link href="/shop?category=Kids" className="hover:text-muted-foreground transition relative group">
+            <Link href="/shop?gender=Kids" className="hover:text-muted-foreground transition relative group">
               Kids
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-foreground transition-all group-hover:w-full"></span>
             </Link>
-            <Link href="/shop?category=Sale" className="text-red-900/70 hover:text-red-900 transition relative group">
+            <Link href="/shop?sale=true" className="text-red-900/70 hover:text-red-900 transition relative group">
               Sale
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-red-900 transition-all group-hover:w-full"></span>
             </Link>
@@ -90,6 +94,14 @@ export default function Navbar() {
 
               <Link href={mounted && userInfo ? "/profile" : "/login"}>
                 <User size={22} strokeWidth={1.5} className="cursor-pointer hover:text-muted-foreground transition" />
+              </Link>
+              <Link href="/favourites" className="relative">
+                <Heart size={22} strokeWidth={1.5} className="cursor-pointer hover:text-muted-foreground transition" fill={mounted && favCount > 0 ? '#be185d' : 'none'} color={mounted && favCount > 0 ? '#be185d' : 'currentColor'} />
+                {mounted && favCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-pink-700 text-white text-[10px] w-[18px] h-[18px] flex items-center justify-center rounded-full font-medium">
+                    {favCount}
+                  </span>
+                )}
               </Link>
               <Link href="/cart" className="relative">
                 <ShoppingBag size={22} strokeWidth={1.5} className="cursor-pointer hover:text-muted-foreground transition" />
@@ -128,44 +140,43 @@ export default function Navbar() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4 font-semibold">Collections</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4 font-semibold">Shop By Collection</p>
             
-            <Link href="/shop?category=Men" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary hover:text-muted-foreground transition text-lg tracking-wider font-light">
+            <Link href="/shop?gender=Men" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary hover:text-muted-foreground transition text-lg tracking-wider font-light">
               Men's Collection
               <ChevronRight size={18} className="text-transparent group-hover:text-muted-foreground transition-all transform group-hover:translate-x-1" />
             </Link>
             
-            <Link href="/shop?category=Women" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary hover:text-muted-foreground transition text-lg tracking-wider font-light">
+            <Link href="/shop?gender=Women" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary hover:text-muted-foreground transition text-lg tracking-wider font-light">
               Women's Collection
               <ChevronRight size={18} className="text-transparent group-hover:text-muted-foreground transition-all transform group-hover:translate-x-1" />
             </Link>
             
-            <Link href="/shop?category=Kids" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary hover:text-muted-foreground transition text-lg tracking-wider font-light">
+            <Link href="/shop?gender=Kids" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary hover:text-muted-foreground transition text-lg tracking-wider font-light">
               Kids Collection
               <ChevronRight size={18} className="text-transparent group-hover:text-muted-foreground transition-all transform group-hover:translate-x-1" />
             </Link>
-
-            <Link href="/shop?category=Accessories" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary hover:text-muted-foreground transition text-lg tracking-wider font-light">
-              Accessories & Bags
-              <ChevronRight size={18} className="text-transparent group-hover:text-muted-foreground transition-all transform group-hover:translate-x-1" />
-            </Link>
             
-            <Link href="/shop?category=Sale" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary text-red-900/80 hover:text-red-900 transition text-lg tracking-wider font-light">
+            <Link href="/shop?sale=true" onClick={toggleSidebar} className="group flex justify-between items-center py-4 border-b border-secondary text-red-900/80 hover:text-red-900 transition text-lg tracking-wider font-light">
               End of Season Sale
               <ChevronRight size={18} className="text-transparent group-hover:text-red-900 transition-all transform group-hover:translate-x-1" />
             </Link>
           </div>
 
           <div className="mt-16">
-             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-6 font-semibold">Account</p>
+             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-6 font-semibold">Your Account</p>
             {mounted && userInfo ? (
               <div className="flex flex-col gap-4">
-                <p className="text-sm font-medium">Welcome back, {userInfo.firstName}</p>
+                <p className="text-sm font-medium">Welcome back, {displayName}</p>
                 <Link href="/profile" onClick={toggleSidebar} className="text-sm font-medium hover:underline text-muted-foreground">My Profile</Link>
                 <Link href="/order-history" onClick={toggleSidebar} className="text-sm font-medium hover:underline text-muted-foreground">Order History</Link>
+                <Link href="/favourites" onClick={toggleSidebar} className="text-sm font-medium hover:underline text-muted-foreground flex items-center gap-2">
+                  <Heart size={14} fill="#be185d" color="#be185d" /> My Favourites {favCount > 0 && `(${favCount})`}
+                </Link>
                 <button 
                   onClick={() => { 
                     dispatch(logout()); 
+                    dispatch(clearFavourites());
                     toggleSidebar(); 
                     router.push('/'); 
                   }} 
@@ -176,6 +187,7 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex flex-col gap-4">
+                <p className="text-sm text-muted-foreground">Sign in to view orders, favourites, and your account details.</p>
                 <Link href="/login" onClick={toggleSidebar} className="w-full border border-primary text-primary py-3 uppercase tracking-widest text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition text-center">
                   Sign In
                 </Link>

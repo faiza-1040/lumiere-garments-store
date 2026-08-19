@@ -5,6 +5,7 @@ import { addToCart } from "@/store/cartSlice";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import FavouriteButton from "@/components/FavouriteButton";
 
 export default function ProductPage({ params }) {
   const resolvedParams = use(params);
@@ -119,7 +120,10 @@ export default function ProductPage({ params }) {
         {/* Details */}
         <div className="w-full md:w-1/2 flex flex-col pt-8 md:sticky md:top-24 h-fit">
           <p className="text-sm uppercase tracking-widest text-muted-foreground mb-4">{product.category}</p>
-          <h1 className="text-4xl font-light font-poppins mb-4">{product.name}</h1>
+          <div className="flex items-start justify-between mb-4">
+            <h1 className="text-4xl font-light font-poppins">{product.name}</h1>
+            <FavouriteButton product={product} size={22} />
+          </div>
           <p className="text-2xl font-medium mb-8">
             PKR {product.price?.toLocaleString()}
             {product.isSale && product.discountPrice && (
@@ -135,6 +139,11 @@ export default function ProductPage({ params }) {
             <div className="mb-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-sm uppercase tracking-wider font-medium">Size</span>
+                {product.modelSize && (
+                  <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+                    Model wears: <strong>{product.modelSize}</strong>
+                  </span>
+                )}
               </div>
               <div className="flex gap-4 flex-wrap">
                 {product.sizes.map((size) => (

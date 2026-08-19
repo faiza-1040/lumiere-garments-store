@@ -53,6 +53,10 @@ function LoginForm() {
           <label className="text-sm block mb-2">Email</label>
           <input 
             type="email" 
+            name="email"
+            autoComplete="email"
+            autoCorrect="off"
+            spellCheck={false}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -64,6 +68,10 @@ function LoginForm() {
           <label className="text-sm block mb-2">Password</label>
           <input 
             type="password" 
+            name="password"
+            autoComplete="current-password"
+            autoCorrect="off"
+            spellCheck={false}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}

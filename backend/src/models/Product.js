@@ -26,7 +26,8 @@ const productSchema = new mongoose.Schema({
   totalSales: { type: Number, default: 0 },
   countInStock: { type: Number, required: true, default: 0 },
   sizes: [{ type: String }],
-  colors: [{ type: String }]
+  colors: [{ type: String }],
+  modelSize: { type: String, default: '' },
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);

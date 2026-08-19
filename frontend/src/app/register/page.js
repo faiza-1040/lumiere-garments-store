@@ -59,6 +59,9 @@ export default function RegisterPage() {
           <input 
             type="text" 
             name="firstName"
+            autoComplete="given-name"
+            autoCorrect="off"
+            spellCheck={false}
             required
             value={formData.firstName}
             onChange={handleChange}
@@ -71,6 +74,9 @@ export default function RegisterPage() {
           <input 
             type="text" 
             name="lastName"
+            autoComplete="family-name"
+            autoCorrect="off"
+            spellCheck={false}
             required
             value={formData.lastName}
             onChange={handleChange}
@@ -83,6 +89,9 @@ export default function RegisterPage() {
           <input 
             type="tel" 
             name="phone"
+            autoComplete="tel"
+            autoCorrect="off"
+            spellCheck={false}
             required
             value={formData.phone}
             onChange={handleChange}
@@ -95,6 +104,9 @@ export default function RegisterPage() {
           <input 
             type="email" 
             name="email"
+            autoComplete="email"
+            autoCorrect="off"
+            spellCheck={false}
             required
             value={formData.email}
             onChange={handleChange}
@@ -107,6 +119,9 @@ export default function RegisterPage() {
           <input 
             type="password" 
             name="password"
+            autoComplete="new-password"
+            autoCorrect="off"
+            spellCheck={false}
             required
             value={formData.password}
             onChange={handleChange}

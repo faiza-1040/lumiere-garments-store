@@ -3,8 +3,18 @@ import { createSlice } from '@reduxjs/toolkit';
 // Safely get user from localStorage if in browser environment
 const getUserFromStorage = () => {
   if (typeof window !== 'undefined') {
-    const user = localStorage.getItem('userInfo');
-    if (user) return JSON.parse(user);
+    try {
+      const storedValue = localStorage.getItem('userInfo');
+      if (!storedValue) return null;
+
+      const user = JSON.parse(storedValue);
+      if (user && (user.token || user._id || user.email)) {
+        return user;
+      }
+    } catch (error) {
+      console.warn('Failed to parse saved user data', error);
+      localStorage.removeItem('userInfo');
+    }
   }
   return null;
 };

@@ -4,12 +4,14 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
+import FavouriteButton from "@/components/FavouriteButton";
 
 function ShopContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const gender = searchParams.get("gender");
   const searchQuery = searchParams.get("search");
+  const sale = searchParams.get("sale");
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +24,7 @@ function ShopContent() {
         if (category) params.set('category', category);
         if (gender) params.set('gender', gender);
         if (searchQuery) params.set('search', searchQuery);
+        if (sale) params.set('sale', sale);
 
         const { data } = await axios.get(`http://localhost:5000/api/products?${params}`);
         setProducts(data);
@@ -32,7 +35,7 @@ function ShopContent() {
       }
     };
     fetchProducts();
-  }, [category, gender, searchQuery]);
+  }, [category, gender, searchQuery, sale]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-24 w-full min-h-screen">
@@ -40,6 +43,8 @@ function ShopContent() {
         <h1 className="text-4xl font-light font-poppins tracking-tight">
           {searchQuery
             ? `Search results for "${searchQuery}"`
+            : sale
+            ? "Sale Collection"
             : gender
             ? `${gender}'s Collection`
             : category
@@ -57,8 +62,8 @@ function ShopContent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-16">
           {products.map((product) => (
             <div key={product._id} className="group flex flex-col relative">
-              <Link href={`/product/${product._id}`}>
-                <div className="relative aspect-[3/4] bg-[#e7e5e4] mb-4 overflow-hidden cursor-pointer">
+              <div className="relative aspect-[3/4] bg-[#e7e5e4] mb-4 overflow-hidden cursor-pointer">
+                <Link href={`/product/${product._id}`}>
                   <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-all duration-500 z-10" />
                   <Image
                     src={product.image?.startsWith('http') ? product.image : `http://localhost:5000${product.image}`}
@@ -67,8 +72,12 @@ function ShopContent() {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                     className="object-cover scale-100 group-hover:scale-105 transition-transform duration-700"
                   />
+                </Link>
+                {/* Heart button — top right, above image overlay */}
+                <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <FavouriteButton product={product} size={16} />
                 </div>
-              </Link>
+              </div>
               <div className="flex flex-col">
                 <div className="flex justify-between items-start mb-1">
                   <Link href={`/product/${product._id}`}>

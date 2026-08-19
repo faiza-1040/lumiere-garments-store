@@ -54,11 +54,14 @@ export default function CheckoutPage() {
   const [selectedShipping, setSelectedShipping] = useState("cod");
   const [billingOption, setBillingOption] = useState("same");
   const [discountCode, setDiscountCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [couponMsg, setCouponMsg] = useState({ text: '', type: '' });
+  const [couponLoading, setCouponLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: userInfo?.email || "",
+    email: "",
     emailOffers: true,
-    firstName: userInfo?.firstName || "",
-    lastName: userInfo?.lastName || "",
+    firstName: "",
+    lastName: "",
     address: "",
     city: "",
     country: "Pakistan",
@@ -69,7 +72,29 @@ export default function CheckoutPage() {
   });
 
   const shippingPrice = SHIPPING_METHODS.find((m) => m.id === selectedShipping)?.price || 299;
-  const totalPrice = subtotal + shippingPrice;
+  const totalPrice = Math.max(0, subtotal + shippingPrice - discountAmount);
+
+  const applyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    setCouponLoading(true);
+    setCouponMsg({ text: '', type: '' });
+    try {
+      const res = await fetch('http://localhost:5000/api/admin/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: discountCode.trim().toUpperCase(), orderValue: subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setDiscountAmount(data.discount);
+      setCouponMsg({ text: `✓ Coupon applied! You saved PKR ${data.discount.toLocaleString()}`, type: 'success' });
+    } catch (err) {
+      setDiscountAmount(0);
+      setCouponMsg({ text: err.message, type: 'error' });
+    } finally {
+      setCouponLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -106,6 +131,8 @@ export default function CheckoutPage() {
         paymentMethod,
         itemsPrice: subtotal,
         shippingPrice,
+        discountAmount,
+        couponCode: discountCode || '',
         totalPrice,
       };
       const { data } = await axios.post("http://localhost:5000/api/orders", orderData);
@@ -404,14 +431,20 @@ export default function CheckoutPage() {
               </div>
 
               {/* Discount code */}
-              <div className="flex gap-2 mb-6 pb-6 border-b border-secondary">
-                <input type="text" placeholder="Discount code or gift card" value={discountCode}
-                  onChange={(e) => setDiscountCode(e.target.value)}
-                  className="flex-1 border border-secondary rounded-sm px-4 py-3 text-sm outline-none focus:border-primary transition bg-background text-foreground placeholder:text-muted-foreground" />
-                <button type="button"
-                  className="px-5 py-3 border border-secondary rounded-sm text-sm font-medium hover:bg-secondary/40 transition text-foreground">
-                  Apply
-                </button>
+              <div className="mb-6 pb-6 border-b border-secondary">
+                <div className="flex gap-2 mb-2">
+                  <input type="text" placeholder="Discount code or gift card" value={discountCode}
+                    onChange={(e) => { setDiscountCode(e.target.value); setDiscountAmount(0); setCouponMsg({ text: '', type: '' }); }}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyDiscount())}
+                    className="flex-1 border border-secondary rounded-sm px-4 py-3 text-sm outline-none focus:border-primary transition bg-background text-foreground placeholder:text-muted-foreground" />
+                  <button type="button" onClick={applyDiscount} disabled={couponLoading}
+                    className="px-5 py-3 border border-secondary rounded-sm text-sm font-medium hover:bg-secondary/40 transition text-foreground disabled:opacity-50">
+                    {couponLoading ? '...' : 'Apply'}
+                  </button>
+                </div>
+                {couponMsg.text && (
+                  <p className={`text-xs mt-1 ${couponMsg.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>{couponMsg.text}</p>
+                )}
               </div>
 
               {/* Totals */}
@@ -424,6 +457,12 @@ export default function CheckoutPage() {
                   <span className="text-muted-foreground">Shipping</span>
                   <span className="text-foreground font-medium">Rs {shippingPrice.toLocaleString()}.00</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between items-center text-green-600">
+                    <span className="flex items-center gap-1">🏷 Discount ({discountCode.toUpperCase()})</span>
+                    <span className="font-medium">− Rs {discountAmount.toLocaleString()}.00</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center pt-3 border-t border-secondary">
                   <span className="text-foreground font-semibold">Total</span>
                   <div className="text-right">
